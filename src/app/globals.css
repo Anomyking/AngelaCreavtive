@@ -1,0 +1,335 @@
+@import "tailwindcss";
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ANGELA PALETTE
+     navy   #051B39  deep brand colour — headings, dark surfaces
+     indigo #302A78  primary — buttons, links, accents
+     cream  #F7F3EA  page background
+     white  #FFFFFF  cards, navigation, inputs
+
+   The brand-* scale below is role-based (not a plain light→dark ramp):
+     950 / 900 / 400 / 300  → navy tones (text + dark surfaces)
+     800 / 700              → indigo (primary / hover)
+     600 / 100              → cream (surface use; text-brand-600 is remapped
+                              to a readable muted blue further down)
+     500 / 50               → white (surface use; text-brand-500 likewise)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  --color-brand-950: #051B39;
+  --color-brand-900: #0A2244;
+  --color-brand-800: #241F66;
+  --color-brand-700: #302A78;
+  --color-brand-600: #F7F3EA;
+  --color-brand-500: #FFFFFF;
+  --color-brand-400: #1E2D4D;
+  --color-brand-300: #051B39;
+  --color-brand-100: #F7F3EA;
+  --color-brand-50:  #FFFFFF;
+
+  /* ── Readable semantic aliases ──────────────────────────────────────────
+     Used in the overrides below so intent is clear.                        */
+  --color-ui-bg:             #F7F3EA;   /* page background            */
+  --color-ui-surface:        #FFFFFF;   /* cards / nav / inputs       */
+  --color-ui-dark:           #051B39;   /* navy — strong text         */
+  --color-ui-primary:        #302A78;   /* indigo — primary           */
+  --color-ui-primary-dark:   #241F66;   /* indigo hover / pressed     */
+  --color-ui-muted:          #4A5573;   /* secondary text  (6.7:1)    */
+  --color-ui-subtle:         #626C8B;   /* tertiary text   (4.7:1)    */
+  --color-border-subtle:     #E6E0D2;   /* light warm border          */
+  --color-border-mid:        #CFC8B6;   /* mid warm border            */
+
+  --font-family-sans: "Inter", system-ui, sans-serif;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BASE
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:root { color-scheme: light; }
+
+html, body {
+  background-color: var(--color-ui-bg);
+  color: var(--color-ui-dark);
+  font-family: var(--font-family-sans);
+}
+body { min-height: 100vh; margin: 0; }
+
+/* Prose elements only — buttons and spans intentionally excluded so
+   Tailwind text-* classes on interactive elements are never silently
+   overridden.
+
+   IMPORTANT: this must live in @layer base. Tailwind utility classes
+   (text-red-400, text-brand-500, etc.) are generated inside @layer
+   utilities. Un-layered CSS always beats layered CSS regardless of
+   specificity — so without @layer base here, this rule was silently
+   overriding every text-color utility applied directly to a <p>,
+   <label>, <li>, etc., which is what caused text to turn invisible
+   on dark backgrounds (e.g. the login error message, the bundle
+   order-panel checklist).                                                  */
+@layer base {
+  a, p, li, label, input, textarea, select {
+    color: var(--color-ui-dark);
+  }
+
+  ::placeholder {
+    color: var(--color-ui-dark);
+    opacity: 0.45;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BENTO GRID CARD SYSTEM
+   Cards alternate between indigo (bg-brand-700/800) and navy (bg-brand-900/950).
+   Each variant needs its own complete colour palette so text, badges, and
+   the "Shop now →" CTA are always legible regardless of which background the
+   data layer assigns.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Indigo bento cards (brand-700 / brand-800) ─────────────────────────── */
+.bento-card-primary,
+.bento-card-primary.bg-brand-700,
+.bento-card-primary.bg-brand-800,
+[class*="bg-brand-700"].bento-card,
+[class*="bg-brand-800"].bento-card {
+  --bento-text-primary:   #ffffff;
+  --bento-text-secondary: rgba(255,255,255,0.78);
+  --bento-text-cta:       rgba(255,255,255,0.90);
+  --bento-badge-bg:       rgba(5,27,57,0.35);
+  --bento-badge-text:     rgba(255,255,255,0.90);
+  --bento-icon-bg:        rgba(5,27,57,0.35);
+  --bento-featured-bg:    rgba(255,255,255,0.20);
+  --bento-featured-text:  #ffffff;
+  --bento-featured-dot:   var(--color-ui-bg);
+}
+
+/* ── Navy bento cards (brand-900 / brand-950) ───────────────────────────── */
+.bento-card-dark,
+.bento-card-dark.bg-brand-900,
+.bento-card-dark.bg-brand-950,
+[class*="bg-brand-900"].bento-card,
+[class*="bg-brand-950"].bento-card {
+  --bento-text-primary:   #ffffff;
+  --bento-text-secondary: rgba(255,255,255,0.65);
+  --bento-text-cta:       rgba(255,255,255,0.80);
+  --bento-badge-bg:       rgba(255,255,255,0.12);
+  --bento-badge-text:     rgba(255,255,255,0.85);
+  --bento-icon-bg:        rgba(255,255,255,0.12);
+  --bento-featured-bg:    rgba(255,255,255,0.15);
+  --bento-featured-text:  #ffffff;
+  --bento-featured-dot:   var(--color-ui-bg);
+}
+
+/* Apply the token values to every text node inside a bento card.
+   We use CSS custom properties rather than !important cascades so that
+   any explicitly-coloured element (e.g. a cream badge) is untouched.       */
+.bg-brand-700,
+.bg-brand-800,
+.bg-brand-900,
+.bg-brand-950 {
+  color: var(--bento-text-primary, #ffffff);
+}
+
+/* ── Targeted selectors for each text role inside bento cards ─────────────
+   Matches the class names used in HeroSection.tsx                           */
+
+/* Title line: text-brand-300 is navy — invisible on navy and low-contrast on
+   indigo, so force white inside every dark/indigo card.                     */
+.bg-brand-900 .text-brand-300,
+.bg-brand-950 .text-brand-300,
+.bg-brand-700 .text-brand-300,
+.bg-brand-800 .text-brand-300 {
+  color: #ffffff !important;
+}
+
+/* Description line: text-brand-500 → give it a visible off-white tint.     */
+.bg-brand-700 .text-brand-500,
+.bg-brand-800 .text-brand-500,
+.bg-brand-900 .text-brand-500,
+.bg-brand-950 .text-brand-500 {
+  color: rgba(255,255,255,0.72) !important;
+}
+
+/* CTA arrow "Shop now →": text-brand-600 → readable on every card.         */
+.bg-brand-700 .text-brand-600,
+.bg-brand-800 .text-brand-600,
+.bg-brand-900 .text-brand-600,
+.bg-brand-950 .text-brand-600 {
+  color: rgba(255,255,255,0.82) !important;
+}
+/* Hover target: group-hover:text-brand-400 would be navy-on-navy.
+   Keep it white on every dark / indigo card.                                */
+.bg-brand-700 .group:hover .group-hover\:text-brand-400,
+.bg-brand-800 .group:hover .group-hover\:text-brand-400,
+.bg-brand-900 .group:hover .group-hover\:text-brand-400,
+.bg-brand-950 .group:hover .group-hover\:text-brand-400 {
+  color: #ffffff !important;
+}
+
+/* Top-right badge: text-brand-400 is navy — unreadable on dark cards.      */
+.bg-brand-700 .text-brand-400,
+.bg-brand-800 .text-brand-400,
+.bg-brand-900 .text-brand-400,
+.bg-brand-950 .text-brand-400 {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+/* Featured pill (e.g. "Most ordered", "New"): bg-brand-600 text-brand-950.
+   brand-600 is cream and brand-950 is navy, so the pill is a solid cream chip
+   with navy text — high contrast on both indigo and navy cards. No override
+   needed; the tokens already do the right thing.
+   Pulse dot inside the pill: bg-brand-300 (navy) on cream — fine.          */
+.bg-brand-700 .bg-brand-600 .text-brand-950,
+.bg-brand-800 .bg-brand-600 .text-brand-950,
+.bg-brand-900 .bg-brand-600 .text-brand-950,
+.bg-brand-950 .bg-brand-600 .text-brand-950 {
+  color: var(--color-ui-dark) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BUNDLE CARDS — popular bundle has bg-brand-700 (indigo)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.bg-brand-700 h3.text-white,
+.bg-brand-700 .text-white {
+  color: #ffffff !important;
+}
+
+/* "Save X%" badge on popular bundle: bg-brand-600 (cream) + text-brand-200.
+   Keep the label navy so it reads on the cream chip.                        */
+.bg-brand-700 .text-brand-200 {
+  color: var(--color-ui-dark) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PRODUCT CLIENT — dark pricing panel (bg-brand-950)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Total price box uses bg-brand-950 with text-brand-300 (navy on navy).
+   Force white.                                                              */
+.bg-brand-950 .text-brand-300 {
+  color: #ffffff !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   GLOBAL text-brand-* colour REMAPS
+   brand-600 / brand-500 are surface colours (cream / white), so when they are
+   used as TEXT colours they are remapped to readable muted blues.
+
+   These live in @layer utilities (same layer as Tailwind's own utilities) so
+   that variants such as hover:text-brand-800 still win on specificity —
+   un-layered rules would silently block every hover colour change.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  .text-brand-600 { color: var(--color-ui-muted); }
+  .text-brand-500 { color: var(--color-ui-subtle); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BUTTON / HOVER OVERRIDES
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* btn-primary utility */
+.btn-primary {
+  background-color: var(--color-ui-primary);
+  color: #ffffff;
+}
+.btn-primary:hover {
+  background-color: var(--color-ui-primary-dark);
+  color: #ffffff;
+  box-shadow: 0 20px 40px rgba(5,27,57,0.22);
+}
+
+/* hover:bg-brand-600 → cream would make a primary button disappear on hover.
+   Override to deep indigo so primary buttons deepen instead.                */
+.hover\:bg-brand-600:hover {
+  background-color: var(--color-ui-primary-dark) !important;
+}
+/* hover:bg-brand-700 used on non-active states — keep primary indigo        */
+.hover\:bg-brand-700:hover {
+  background-color: var(--color-ui-primary) !important;
+}
+/* hover:bg-brand-100 on the white "Order this pack" button inside the indigo
+   card — stays cream with navy text.                                        */
+.bg-brand-700 .hover\:bg-brand-100:hover,
+.bg-brand-800 .hover\:bg-brand-100:hover {
+  color: var(--color-ui-dark) !important;
+}
+/* hover:bg-brand-50 is used for row / link hover on white surfaces — tint
+   it cream so there is actually visible feedback.                           */
+.hover\:bg-brand-50:hover {
+  background-color: var(--color-ui-bg) !important;
+}
+
+/* Placeholders inside inputs that are themselves dark (login / signup /
+   admin forms on navy): the navy or indigo placeholder colours used for light
+   inputs would vanish, so show a soft white instead.                        */
+input[class*="bg-brand-9"]::placeholder,
+textarea[class*="bg-brand-9"]::placeholder {
+  color: rgba(255,255,255,0.42) !important;
+  opacity: 1;
+}
+
+/* Focused form fields: brand-500 is white, so give inputs an indigo border  */
+.focus\:border-brand-500:focus,
+.focus-within\:border-brand-400:focus-within {
+  border-color: var(--color-ui-primary) !important;
+}
+/* …but on dark inputs indigo-on-navy is barely visible — use a light ring.  */
+input[class*="bg-brand-9"]:focus,
+textarea[class*="bg-brand-9"]:focus {
+  border-color: rgba(255,255,255,0.65) !important;
+}
+
+/* Arrow CTA circle in ProductCard: bg-brand-700 → indigo, text-white.
+   hover:bg-brand-600 would turn it cream — already fixed above.             */
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BORDER OVERRIDES
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* border-brand-50 / border-brand-100 are surface colours → use a visible
+   warm border instead.                                                      */
+.border-brand-50  { border-color: var(--color-border-subtle) !important; }
+.border-brand-100 { border-color: var(--color-border-subtle) !important; }
+
+/* Inside indigo cards: re-allow the card's own border to be a visible
+   translucent shade rather than the warm override.                          */
+.bg-brand-700.border-brand-100,
+.bg-brand-800.border-brand-100 {
+  border-color: rgba(255,255,255,0.25) !important;
+}
+
+/* hover:border-brand-300 → navy — soften to mid warm grey                  */
+.hover\:border-brand-300:hover { border-color: var(--color-border-mid) !important; }
+
+/* border-brand-300 on white button inside indigo card — keep white tint     */
+.bg-brand-700 .border-brand-300,
+.bg-brand-800 .border-brand-300 {
+  border-color: rgba(255,255,255,0.45) !important;
+}
+
+/* border-brand-500 on the "Get a quote" outline button in the indigo CTA strip */
+.border-brand-500 { border-color: rgba(255,255,255,0.55) !important; }
+
+/* Divide utilities */
+.divide-brand-50  > * + * { border-color: var(--color-border-subtle) !important; }
+.divide-brand-100 > * + * { border-color: var(--color-border-subtle) !important; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BACKGROUND SURFACE OVERRIDES
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* bg-brand-50 is the card surface: pure white against the cream page.
+   (The token already resolves to white — this keeps it !important so it also
+   wins over the base-layer rules.)                                          */
+.bg-brand-50 { background-color: var(--color-ui-surface) !important; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   GRADIENT SECTION
+   ════════════════════════════════════════════════════════════════════════════ */
+.bg-gradient-brand {
+  background-image: linear-gradient(135deg, var(--color-ui-primary) 0%, var(--color-ui-dark) 100%);
+  color: #ffffff;
+}

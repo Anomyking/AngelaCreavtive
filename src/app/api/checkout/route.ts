@@ -7,9 +7,8 @@ import { isRateLimited, getClientIp } from "@/lib/admin-auth";
 // arranges payment with the customer (WhatsApp / phone / email). The admin
 // dashboard then marks the order as paid.
 //
-// payment_method is stored as "whatsapp" because that value is already allowed
-// by the orders table check constraint (see supabase-schema.sql) — it means
-// "payment arranged offline", so no database migration is required.
+// payment_method is stored as "whatsapp", which the admin dashboard shows as
+// "Arranged with customer" (older orders may still say "mpesa" or "card").
 const OFFLINE_PAYMENT_METHOD = "whatsapp";
 
 function generateRef(): string {

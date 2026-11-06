@@ -112,41 +112,36 @@ All emails arrive in your navy-and-indigo Angela-branded template — looks prof
 
 ## Database access (advanced)
 
-For things not in the dashboard yet, you can directly access Supabase:
+Orders, quotes and product stock live in MongoDB Atlas. For things not in the dashboard yet:
 
-1. Log in to **supabase.com** → your Angela project
-2. **Table Editor** → see all tables (orders, quotes, profiles, carts)
-3. **SQL Editor** → run custom queries
+1. Log in to **mongodb.com/atlas** → your cluster → **Browse Collections**
+2. Database `angela` (or whatever you set as `MONGODB_DB`) → collections `orders`, `quotes`, `product_status`
+3. Use the **Filter** box, or **Aggregations**, to run custom queries
 
-Useful queries:
+Useful filters (paste into the Filter box on the `orders` / `quotes` collections):
 
-```sql
--- Top 10 customers by spend
-select customer_name, customer_email, count(*) as orders, sum(total) as total_spent
-from orders
-where payment_status = 'paid'
-group by customer_name, customer_email
-order by total_spent desc
-limit 10;
+```js
+// Unpaid orders still waiting for payment
+{ "payment_status": "pending", "status": { "$ne": "cancelled" } }
 
--- Revenue this week
-select sum(total) as revenue
-from orders
-where payment_status = 'paid'
-and created_at >= now() - interval '7 days';
+// Pending quotes older than 24 hours (need action!)
+// (replace the date with "24 hours ago" in ISO format)
+{ "status": "pending", "created_at": { "$lt": { "$date": "2026-01-01T00:00:00Z" } } }
 
--- Pending quotes older than 24 hours (need action!)
-select * from quotes
-where status = 'pending'
-and created_at < now() - interval '24 hours'
-order by created_at asc;
+// All orders for one customer
+{ "customer_email": "jane@company.co.ke" }
+```
 
--- Most popular products in the last month
-select items->0->'product'->>'name' as product, count(*) as orders
-from orders
-where created_at >= now() - interval '30 days'
-group by items->0->'product'->>'name'
-order by orders desc;
+Top customers by spend (use the **Aggregations** tab on `orders`):
+
+```js
+[
+  { "$match": { "payment_status": "paid" } },
+  { "$group": { "_id": "$customer_email", "name": { "$first": "$customer_name" },
+                "orders": { "$sum": 1 }, "total_spent": { "$sum": "$total" } } },
+  { "$sort": { "total_spent": -1 } },
+  { "$limit": 10 }
+]
 ```
 
 ---
@@ -157,7 +152,7 @@ order by orders desc;
 - **Use a strong password** — at least 16 characters, mix of letters/numbers/symbols
 - **Change it periodically** — every 3–6 months
 - **Log out when on shared computers**
-- **The service role key in `.env.local` should never be shared** — it bypasses all permissions
+- **Your `MONGODB_URI` in `.env.local` should never be shared** — it contains your database password
 
 ---
 

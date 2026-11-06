@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       ? itemsList.map((i) => `${i.name} [${i.group}]`).join(", ")
       : product;
 
-    // Save to Supabase — stash items[] array inside description so admin can see them
+    // Save to MongoDB — stash items[] array inside description so admin can see them
     const itemBreakdown = itemsList.length > 0
       ? `\n\nItems requested (${itemsList.length}):\n${itemsList.map((i) => `• ${i.name} (${i.group})`).join("\n")}\n\nCustomer description:\n${description}`
       : description;

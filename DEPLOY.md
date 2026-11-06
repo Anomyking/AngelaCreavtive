@@ -3,7 +3,8 @@
 ## Before you start — what you need
 - GitHub account (free) → github.com
 - Vercel account (free) → vercel.com
-- Supabase account (free) → supabase.com
+- MongoDB Atlas account (free) → mongodb.com/atlas — stores orders, quotes and product stock
+- Supabase account (free) → supabase.com — customer sign-in / accounts only
 - Resend account (free) → resend.com
 - Your .co.ke domain → truehost.co.ke (~KES 1,000/yr)
 - Google Analytics account (free) → analytics.google.com
@@ -30,16 +31,28 @@ git push -u origin main
 
 ---
 
-## STEP 2 — Set up Supabase (10 mins)
+## STEP 2 — Set up MongoDB Atlas (10 mins)
+
+Orders, quotes and product stock are stored in MongoDB. Collections and indexes
+are created automatically on first use — there is no schema to run.
+
+1. Go to mongodb.com/atlas → create a free **M0** cluster
+2. **Database Access** → Add a database user (username + password). Avoid special
+   characters in the password, or URL-encode them.
+3. **Network Access** → Add IP address → `0.0.0.0/0` (Render and Vercel use changing IPs)
+4. **Database → Connect → Drivers** → copy the connection string, e.g.
+   `mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority`
+   → this is your `MONGODB_URI`
+5. (Optional) `MONGODB_DB` sets the database name — defaults to `angela`
+
+## STEP 2b — Set up Supabase for customer accounts (5 mins)
+
+Supabase is now used only for customer sign-up / login (`/auth`, `/account`).
 
 1. Go to supabase.com → New project
-2. Name: "Angela" | Region: pick closest (Europe or US)
-3. Wait for project to initialize (~2 mins)
-4. Go to **SQL Editor** → paste contents of `supabase-schema.sql` → **Run**
-5. Go to **Settings → API** → copy:
+2. **Settings → API** → copy:
    - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
    - `anon` public key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `service_role` secret → `SUPABASE_SERVICE_ROLE_KEY`
 
 ---
 
@@ -61,9 +74,10 @@ git push -u origin main
 4. **Environment Variables** → add these **before** the first deploy:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL        = (from Supabase)
-NEXT_PUBLIC_SUPABASE_ANON_KEY   = (from Supabase)
-SUPABASE_SERVICE_ROLE_KEY       = (from Supabase)
+MONGODB_URI                     = (from MongoDB Atlas — REQUIRED for orders/quotes)
+MONGODB_DB                      = angela   (optional)
+NEXT_PUBLIC_SUPABASE_URL        = (from Supabase — customer login)
+NEXT_PUBLIC_SUPABASE_ANON_KEY   = (from Supabase — customer login)
 RESEND_API_KEY                  = (from Resend)
 ADMIN_EMAIL                     = hello@angela.co.ke
 ADMIN_PASSWORD                  = (choose a strong password — REQUIRED, the build fails without it)
@@ -153,4 +167,4 @@ Password: whatever you set as `ADMIN_PASSWORD`
 Every phase of the build is documented. If something breaks:
 1. Check the browser console for errors
 2. Check your deployment logs
-3. Check Supabase logs (Dashboard → Logs)
+3. Check MongoDB Atlas (Database → Browse Collections, and Network Access if the app can't connect)

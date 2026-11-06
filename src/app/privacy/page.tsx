@@ -108,7 +108,6 @@ export default function PrivacyPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-50">
-                  <tr><td className="px-4 py-2.5">IntaSend</td><td className="px-4 py-2.5">Name, email, phone, amount</td><td className="px-4 py-2.5">Process M-Pesa & card payments</td></tr>
                   <tr><td className="px-4 py-2.5">Supabase</td><td className="px-4 py-2.5">Account & order data</td><td className="px-4 py-2.5">Database hosting (EU servers)</td></tr>
                   <tr><td className="px-4 py-2.5">Resend</td><td className="px-4 py-2.5">Email address & order details</td><td className="px-4 py-2.5">Send order confirmation emails</td></tr>
                   <tr><td className="px-4 py-2.5">Vercel</td><td className="px-4 py-2.5">Anonymised technical logs</td><td className="px-4 py-2.5">Host our website</td></tr>
@@ -141,7 +140,7 @@ export default function PrivacyPage() {
               <li><strong>Encryption</strong> — all data transmitted is protected by TLS (HTTPS)</li>
               <li><strong>Password security</strong> — passwords are hashed using bcrypt — we never see your actual password</li>
               <li><strong>Access control</strong> — only authorised staff can access customer data, and only what they need</li>
-              <li><strong>Payment security</strong> — we don&apos;t store full card details. Payments are handled by IntaSend, which is PCI-DSS compliant</li>
+              <li><strong>Payment security</strong> — we don&apos;t collect or store card details on this website. Payment is arranged directly with our team</li>
               <li><strong>Database security</strong> — row-level security ensures users can only see their own data</li>
               <li><strong>Regular updates</strong> — we keep our systems patched against security vulnerabilities</li>
             </ul>

@@ -50,9 +50,9 @@ export default async function AdminDashboard() {
   const trendDailyAvg = trend.length > 0 ? Math.round(trendTotal / trend.length) : 0;
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl">
       {/* Header */}
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -67,7 +67,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Top KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <KpiCard
           label="Total revenue"
           value={formatKES(stats.total_revenue ?? 0)}
@@ -97,7 +97,7 @@ export default async function AdminDashboard() {
       {/* Charts + Status overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         {/* Revenue chart */}
-        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5">
+        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-medium text-slate-900">Revenue · last 14 days</h2>
@@ -207,9 +207,9 @@ function KpiCard({ label, value, sub, accent }: { label: string; value: string; 
     emerald: "from-emerald-50 to-white border-emerald-200",
   };
   return (
-    <div className={`bg-gradient-to-br ${accents[accent]} border rounded-2xl p-5`}>
-      <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">{label}</p>
-      <p className="text-2xl font-semibold text-slate-900">{value}</p>
+    <div className={`bg-gradient-to-br ${accents[accent]} border rounded-2xl p-4 sm:p-5 min-w-0`}>
+      <p className="text-[11px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">{label}</p>
+      <p className="text-xl sm:text-2xl font-semibold text-slate-900 break-words">{value}</p>
       <p className="text-xs text-slate-500 mt-1">{sub}</p>
     </div>
   );

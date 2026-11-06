@@ -16,7 +16,7 @@ export default async function SuccessPage({
           <span className="text-4xl">✅</span>
         </div>
 
-        <h1 className="text-2xl font-medium text-brand-950 mb-3">Order confirmed!</h1>
+        <h1 className="text-2xl font-medium text-brand-950 mb-3">Order received!</h1>
 
         {ref && (
           <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 rounded-full px-4 py-2 mb-4">
@@ -26,8 +26,8 @@ export default async function SuccessPage({
         )}
 
         <p className="text-sm text-brand-600 leading-relaxed mb-8">
-          Thank you for your order. We&apos;ve received your payment and our team will begin
-          production shortly. You&apos;ll receive an email confirmation and updates via WhatsApp.
+          Thank you for your order. Our team will contact you shortly to confirm it and arrange
+          payment. You&apos;ll receive an email confirmation and updates via WhatsApp.
         </p>
 
         {/* What happens next */}
@@ -36,8 +36,9 @@ export default async function SuccessPage({
           <div className="space-y-3">
             {[
               { icon: "📧", step: "You'll receive an email confirmation within 5 minutes" },
+              { icon: "💬", step: "We'll contact you by WhatsApp or phone to confirm your order and arrange payment" },
               { icon: "🎨", step: "Our design team will send a proof for your approval" },
-              { icon: "🖨️", step: "We print once you approve — or same-day if no changes" },
+              { icon: "🖨️", step: "We print once payment is confirmed and you approve — or same-day if no changes" },
               { icon: "🚚", step: "We deliver or you collect — we'll confirm the timeline" },
             ].map((item) => (
               <div key={item.step} className="flex items-start gap-3">

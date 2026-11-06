@@ -69,7 +69,7 @@ export default function OrderStatusUpdater({ order }: { order: DBOrder }) {
               <button
                 key={s}
                 onClick={() => setStatus(s)}
-                className={`py-2.5 px-3 rounded-xl text-xs font-medium border text-left transition-all ${
+                className={`py-3 sm:py-2.5 px-3 rounded-xl text-xs font-medium border text-left transition-all ${
                   status === s
                     ? "bg-brand-700 text-white border-brand-700"
                     : "bg-white text-brand-600 border-brand-100 hover:border-brand-300"

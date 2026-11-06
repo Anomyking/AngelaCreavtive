@@ -34,6 +34,13 @@ export default function QuotesPage() {
     setAmount(q.quoted_amount?.toString() ?? "");
     setNotes(q.admin_notes ?? "");
     setMsg("");
+    // On phones the detail replaces the list, so start at the top of it
+    window.scrollTo({ top: 0 });
+  };
+
+  const handleBack = () => {
+    setSelected(null);
+    setMsg("");
   };
 
   const handleSave = async (status: string) => {
@@ -53,7 +60,7 @@ export default function QuotesPage() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-medium text-brand-950">Quotes</h1>
         <p className="text-sm text-brand-500 mt-1">{quotes.filter(q => q.status === "pending").length} pending · {quotes.length} total</p>
@@ -61,8 +68,8 @@ export default function QuotesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Quotes list */}
-        <div className="bg-white border border-brand-100 rounded-2xl overflow-hidden">
+        {/* Quotes list — below lg it gives way to the detail once a quote is selected */}
+        <div className={`bg-white border border-brand-100 rounded-2xl overflow-hidden ${selected ? "hidden lg:block" : ""}`}>
           {quotes.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-4xl mb-3">📋</p>
@@ -89,16 +96,21 @@ export default function QuotesPage() {
 
         {/* Quote detail + action */}
         {selected ? (
-          <div className="bg-white border border-brand-100 rounded-2xl p-6 space-y-5">
+          <div className="bg-white border border-brand-100 rounded-2xl p-4 sm:p-6 space-y-5 min-w-0">
+            <button type="button" onClick={handleBack}
+              className="lg:hidden -mt-1 text-sm text-brand-600 hover:text-brand-800 py-1">
+              ← All quotes
+            </button>
+
             <div>
-              <h2 className="text-base font-medium text-brand-950">{selected.customer_name}</h2>
-              <div className="flex gap-3 mt-2">
+              <h2 className="text-base font-medium text-brand-950 break-words">{selected.customer_name}</h2>
+              <div className="flex flex-wrap gap-2 mt-2">
                 <a href={`https://wa.me/${selected.customer_phone.replace(/\D/g,"")}?text=Hi ${selected.customer_name}, your quote for ${selected.product_name}:`}
-                  target="_blank" className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-full">💬 WhatsApp</a>
+                  target="_blank" className="text-xs bg-emerald-600 text-white px-4 py-2 rounded-full">💬 WhatsApp</a>
                 <a href={`mailto:${selected.customer_email}?subject=Your quote for ${selected.product_name} — Angela`}
-                  className="text-xs border border-brand-100 text-brand-600 px-3 py-1.5 rounded-full">📧 Email</a>
+                  className="text-xs border border-brand-100 text-brand-600 px-4 py-2 rounded-full">📧 Email</a>
                 <a href={`tel:${selected.customer_phone}`}
-                  className="text-xs border border-brand-100 text-brand-600 px-3 py-1.5 rounded-full">📱 Call</a>
+                  className="text-xs border border-brand-100 text-brand-600 px-4 py-2 rounded-full">📱 Call</a>
               </div>
             </div>
 
@@ -147,7 +159,7 @@ export default function QuotesPage() {
               ].map((row) => (
                 <div key={row.label} className="flex gap-3">
                   <span className="text-xs text-brand-400 w-20 shrink-0">{row.label}</span>
-                  <span className="text-xs text-brand-800 font-medium">{row.value}</span>
+                  <span className="text-xs text-brand-800 font-medium min-w-0 break-words">{row.value}</span>
                 </div>
               ))}
             </div>
@@ -191,7 +203,7 @@ export default function QuotesPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-white border border-brand-100 rounded-2xl flex items-center justify-center py-16">
+          <div className="hidden lg:flex bg-white border border-brand-100 rounded-2xl items-center justify-center py-16">
             <div className="text-center">
               <p className="text-3xl mb-3">👈</p>
               <p className="text-sm text-brand-400">Select a quote to review</p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar          from "@/components/layout/Navbar";
+import PublicChrome    from "@/components/layout/PublicChrome";
 import Footer          from "@/components/layout/Footer";
 import CartDrawer      from "@/components/cart/CartDrawer";
 import WhatsAppButton  from "@/components/ui/WhatsAppButton";
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   openGraph: {
     title: "Angela — Premium Printing in Nairobi",
-    description: "Same-day printing in Nairobi. Delivered across all 47 counties. Pay with M-Pesa.",
+    description: "Same-day printing in Nairobi. Delivered across all 47 counties.",
     url: BASE_URL,
     siteName: "Angela",
     locale: "en_KE",
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Angela — Premium Printing in Nairobi",
-    description: "Same-day printing in Nairobi. Pay with M-Pesa. Free delivery on orders over KES 7,000.",
+    description: "Same-day printing in Nairobi. Free delivery on orders over KES 7,000.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -69,8 +70,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
-            <Navbar />
-            <CartDrawer />
+            <PublicChrome>
+              <Navbar />
+              <CartDrawer />
+            </PublicChrome>
             {/*
               main sits above the footer (z-10 vs footer's z-0).
               As the user scrolls, main slides UP revealing the sticky
@@ -80,8 +83,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="relative z-10 bg-white">
               {children}
             </main>
-            <Footer />
-            <WhatsAppButton />
+            <PublicChrome>
+              <Footer />
+              <WhatsAppButton />
+            </PublicChrome>
           </CartProvider>
         </AuthProvider>
       </body>

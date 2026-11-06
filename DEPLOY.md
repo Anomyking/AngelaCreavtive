@@ -5,9 +5,12 @@
 - Vercel account (free) → vercel.com
 - Supabase account (free) → supabase.com
 - Resend account (free) → resend.com
-- IntaSend account → intasend.com
 - Your .co.ke domain → truehost.co.ke (~KES 1,000/yr)
 - Google Analytics account (free) → analytics.google.com
+
+> **Payments:** the website does not take online payment. Customers place an order,
+> you contact them to arrange payment, then mark the order as **Paid** in the admin
+> dashboard. No payment-provider account is needed.
 
 ---
 
@@ -50,24 +53,12 @@ git push -u origin main
 
 ---
 
-## STEP 4 — Set up IntaSend (15 mins)
-
-1. Go to intasend.com → Sign up with your business details
-2. Complete KYC verification (business registration required)
-3. **Settings → API Keys** → copy:
-   - Publishable key → `INTASEND_PUBLISHABLE_KEY`
-   - Secret key → `INTASEND_SECRET_KEY`
-4. Start in test mode: `INTASEND_TEST_MODE=true`
-5. After going live: set `INTASEND_TEST_MODE=false`
-
----
-
-## STEP 5 — Deploy to Vercel (10 mins)
+## STEP 4 — Deploy (Vercel or Render) (10 mins)
 
 1. Go to vercel.com → **Add New Project**
 2. **Import Git Repository** → select your `Angela` repo
 3. Framework: Next.js (auto-detected)
-4. **Environment Variables** → add ALL variables from `.env.example`:
+4. **Environment Variables** → add these **before** the first deploy:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL        = (from Supabase)
@@ -75,21 +66,18 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY   = (from Supabase)
 SUPABASE_SERVICE_ROLE_KEY       = (from Supabase)
 RESEND_API_KEY                  = (from Resend)
 ADMIN_EMAIL                     = hello@angela.co.ke
-ADMIN_PASSWORD                  = (choose a strong password)
-INTASEND_PUBLISHABLE_KEY        = (from IntaSend)
-INTASEND_SECRET_KEY             = (from IntaSend)
-INTASEND_WEBHOOK_SECRET         = (from IntaSend webhook settings)
-INTASEND_TEST_MODE              = true
+ADMIN_PASSWORD                  = (choose a strong password — REQUIRED, the build fails without it)
 NEXT_PUBLIC_APP_URL             = https://angela.co.ke
 NEXT_PUBLIC_GA_ID               = G-XXXXXXXXXX
-ADMIN_PASSWORD                  = your-secure-admin-password
 ```
 
 5. Click **Deploy** → wait ~2 mins → your site is live on a `.vercel.app` URL
 
+On Render, add the same variables under your service's **Environment** tab.
+
 ---
 
-## STEP 6 — Connect your domain (10 mins)
+## STEP 5 — Connect your domain (10 mins)
 
 **In Vercel:**
 1. Project → **Settings → Domains**
@@ -105,48 +93,39 @@ ADMIN_PASSWORD                  = your-secure-admin-password
 
 ---
 
-## STEP 7 — Set up IntaSend webhook (5 mins)
-
-1. IntaSend dashboard → **Webhooks**
-2. Add webhook URL: `https://angela.co.ke/api/webhook`
-3. Events: select `payment.complete` and `payment.failed`
-4. Copy the webhook secret → add as `INTASEND_WEBHOOK_SECRET` in Vercel
-
----
-
-## STEP 8 — Set up Google Analytics (5 mins)
+## STEP 6 — Set up Google Analytics (5 mins)
 
 1. analytics.google.com → New property → Web
 2. Enter `angela.co.ke`
 3. Copy your **Measurement ID** (G-XXXXXXXXXX)
-4. Add to Vercel env vars: `NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX`
-5. Redeploy (Vercel → Deployments → Redeploy)
+4. Add to your env vars: `NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX`
+5. Redeploy
 
 ---
 
-## STEP 9 — Google Search Console (10 mins)
+## STEP 7 — Google Search Console (10 mins)
 
 1. search.google.com/search-console → Add property
 2. Enter `angela.co.ke` → HTML tag verification method
-3. Copy the content value → `GOOGLE_SITE_VERIFICATION` in Vercel
+3. Copy the content value → `GOOGLE_SITE_VERIFICATION` in your env vars
 4. Verify → then submit your sitemap:
    - Sitemap URL: `https://angela.co.ke/sitemap.xml`
 
 ---
 
-## STEP 10 — Go live checklist ✅
+## STEP 8 — Go live checklist ✅
 
 Before announcing:
 
 - [ ] Open `angela.co.ke` — site loads correctly
-- [ ] Place a test order (M-Pesa test mode)
+- [ ] Place a test order — you should get the "Order received" page and an email
 - [ ] Submit a quote request — check you receive the email
-- [ ] Open `/admin` — login works, orders show up
-- [ ] Check mobile on your phone — everything responsive
+- [ ] Open `/admin` — login works, the test order shows up
+- [ ] On the order, click **Paid** under Payment — revenue on the dashboard updates
+- [ ] Check `/admin` on your phone — menu button opens the navigation drawer
 - [ ] WhatsApp button appears after 3 seconds
 - [ ] Cart works — add item, open drawer, proceed to checkout
-- [ ] Switch IntaSend to live mode: `INTASEND_TEST_MODE=false`
-- [ ] Redeploy on Vercel after updating env vars
+- [ ] Redeploy after updating env vars
 
 ---
 
@@ -165,7 +144,6 @@ Password: whatever you set as `ADMIN_PASSWORD`
 | Supabase   | KES 0        |
 | Resend     | KES 0        |
 | Domain     | ~KES 85/mo   |
-| IntaSend   | 2.9% per sale|
 | **Total**  | **~KES 85/mo** |
 
 ---
@@ -174,6 +152,5 @@ Password: whatever you set as `ADMIN_PASSWORD`
 
 Every phase of the build is documented. If something breaks:
 1. Check the browser console for errors
-2. Check Vercel deployment logs
+2. Check your deployment logs
 3. Check Supabase logs (Dashboard → Logs)
-

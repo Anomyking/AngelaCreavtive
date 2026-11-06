@@ -20,12 +20,6 @@ const brand = {
 export function OrderConfirmationEmail(
   data: OrderEmailData & { isAdminCopy?: boolean }
 ) {
-  const statusMap: Record<string, string> = {
-    mpesa:    "M-Pesa",
-    card:     "Card",
-    whatsapp: "WhatsApp",
-  };
-
   const deliveryMap: Record<string, string> = {
     pickup:     "Pick up in Westlands, Nairobi",
     nairobi:    "Nairobi delivery",
@@ -38,7 +32,7 @@ export function OrderConfirmationEmail(
       <Preview>
         {data.isAdminCopy
           ? `New order ${data.reference} — KES ${data.total.toLocaleString()}`
-          : `Your order ${data.reference} is confirmed ✅`}
+          : `We've received your order ${data.reference} ✅`}
       </Preview>
       <Body style={{ backgroundColor: "#F7F3EA", fontFamily: "Inter, system-ui, sans-serif", margin: 0, padding: "32px 16px" }}>
         <Container style={{ maxWidth: "560px", margin: "0 auto" }}>
@@ -65,12 +59,12 @@ export function OrderConfirmationEmail(
             )}
 
             <Heading style={{ fontSize: "22px", fontWeight: "600", color: brand.textDark, margin: "0 0 8px" }}>
-              {data.isAdminCopy ? "New order received" : "Order confirmed! 🎉"}
+              {data.isAdminCopy ? "New order received" : "Order received! 🎉"}
             </Heading>
             <Text style={{ fontSize: "14px", color: brand.textMid, margin: "0 0 24px", lineHeight: "1.6" }}>
               {data.isAdminCopy
-                ? `${data.customerName} has placed an order.`
-                : `Hi ${data.customerName}, thank you for your order. We've received your payment and our team will begin production shortly.`}
+                ? `${data.customerName} has placed an order. Contact them to confirm it and arrange payment, then mark it as paid in the dashboard.`
+                : `Hi ${data.customerName}, thank you for your order. Our team will contact you shortly to confirm the details and arrange payment before production begins.`}
             </Text>
 
             {/* Order reference */}
@@ -82,7 +76,7 @@ export function OrderConfirmationEmail(
                 </Column>
                 <Column style={{ textAlign: "right" }}>
                   <Text style={{ fontSize: "11px", color: brand.textLight, margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Payment</Text>
-                  <Text style={{ fontSize: "13px", fontWeight: "500", color: "#059669", margin: 0 }}>✅ {statusMap[data.paymentMethod] ?? data.paymentMethod}</Text>
+                  <Text style={{ fontSize: "13px", fontWeight: "500", color: "#B45309", margin: 0 }}>⏳ To be arranged</Text>
                 </Column>
               </Row>
             </Section>
@@ -121,7 +115,7 @@ export function OrderConfirmationEmail(
               </Column>
             </Row>
             <Row>
-              <Column><Text style={{ fontSize: "15px", fontWeight: "600", color: brand.textDark, margin: "8px 0 0" }}>Total paid</Text></Column>
+              <Column><Text style={{ fontSize: "15px", fontWeight: "600", color: brand.textDark, margin: "8px 0 0" }}>Total due</Text></Column>
               <Column style={{ textAlign: "right" }}><Text style={{ fontSize: "15px", fontWeight: "600", color: brand.textDark, margin: "8px 0 0" }}>KES {data.total.toLocaleString()}</Text></Column>
             </Row>
 
@@ -132,8 +126,9 @@ export function OrderConfirmationEmail(
               <>
                 <Text style={{ fontSize: "13px", fontWeight: "600", color: brand.textDark, margin: "0 0 12px" }}>What happens next</Text>
                 {[
+                  { icon: "💬", text: "We'll contact you by WhatsApp or phone to confirm your order and arrange payment" },
                   { icon: "🎨", text: "Our design team will send you a proof for approval" },
-                  { icon: "🖨️", text: "We print once you approve — or immediately if no changes needed" },
+                  { icon: "🖨️", text: "We print once payment is confirmed and you approve the proof" },
                   { icon: "🚚", text: "We'll confirm your collection/delivery time via WhatsApp" },
                   { icon: "📧", text: "You'll receive status updates at this email address" },
                 ].map((item) => (

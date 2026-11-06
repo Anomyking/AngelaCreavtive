@@ -4,14 +4,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
-  { q: "How do I place an order?", a: "Browse products on our website, choose your specs, upload your design and pay via M-Pesa or card. Prefer WhatsApp? Send us your details on +254 700 000 000 and we'll walk you through it. Orders are confirmed within 1 hour during business hours." },
+  { q: "How do I place an order?", a: "Browse products on our website, choose your specs, upload your design and place your order. We&apos;ll contact you to confirm it and arrange payment. Prefer WhatsApp? Send us your details on +254 700 000 000 and we'll walk you through it. Orders are confirmed within 1 hour during business hours." },
   { q: "What is the minimum order quantity?", a: "Business cards start from 50 pieces, flyers from 100 pieces, and t-shirts from 5 pieces. Stickers and labels can be ordered from as few as 10 pieces. Need fewer? Get in touch and we'll see what we can do." },
   { q: "Can I request a sample before a bulk order?", a: "Yes — we offer a physical proof service for orders above KES 30,000. You receive one printed sample before we run the full job so you can approve colour, finish, and sizing. Sample fee is KES 500, credited back to your final order." },
   { q: "What file format should I send my design in?", a: "We accept PDF, AI, PSD, and high-resolution PNG/JPG files (minimum 300 DPI). For best results, send PDF with bleed and crop marks. Not sure? Use our design templates — pre-set to the correct dimensions for every product." },
   { q: "Do you offer a design service?", a: "Yes. Our in-house design team can create your artwork from scratch. Design fees start from KES 1,500 depending on complexity. All design orders include 3 free revisions. Design is free when you order any of our starter bundles." },
   { q: "How long does delivery take?", a: "Nairobi same-day collection is available for orders placed before 12 PM. Standard Nairobi delivery takes 1–2 business days. Countrywide delivery via courier takes 2–4 business days depending on location." },
   { q: "Do you deliver outside Nairobi?", a: "Yes — we deliver to all 47 counties across Kenya via trusted courier partners. Delivery fee is KES 850 outside Nairobi. Orders above KES 7,000 qualify for free delivery countrywide." },
-  { q: "How can I pay?", a: "We accept M-Pesa, Visa, Mastercard, and direct bank transfer. Business accounts can be invoiced monthly with 30-day payment terms after credit approval." },
+  { q: "How can I pay?", a: "There's no online payment on our website. After you place an order, our team contacts you to confirm it and arrange payment — for example M-Pesa or bank transfer. Business accounts can be invoiced monthly with 30-day payment terms after credit approval." },
   { q: "What if my order arrives damaged or incorrect?", a: "We stand behind every job. If your order arrives damaged, misprinted, or doesn't match what you approved — we'll reprint it at no charge. Simply contact us within 48 hours of delivery with a photo." },
 ];
 

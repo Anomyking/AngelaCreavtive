@@ -67,15 +67,18 @@ export default function TermsPage() {
               Prices shown on our website are for standard specifications. Custom requirements (sizes, finishes,
               quantities outside standard tiers) may incur additional charges, communicated via a quote.
             </p>
-            <p className="mt-3">We accept the following payment methods:</p>
+            <p className="mt-3">
+              We don&apos;t take payment on our website. After you place an order, our team will contact you
+              to confirm it and arrange payment. Payment options include:
+            </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>M-Pesa</strong> — via STK push on your registered Safaricom number</li>
-              <li><strong>Card payments</strong> — Visa and Mastercard via IntaSend</li>
+              <li><strong>M-Pesa</strong> — arranged with our team once your order is confirmed</li>
               <li><strong>Bank transfer</strong> — for orders above KES 50,000</li>
               <li><strong>Business credit</strong> — 30-day terms for approved business accounts</li>
             </ul>
             <p className="mt-3">
-              All payments must clear before we begin production. Failed payments will result in cancelled orders.
+              Payments must be confirmed before we begin production, unless a credit arrangement is in place.
+              Orders that remain unpaid after we have asked for payment may be cancelled.
             </p>
           </Section>
 

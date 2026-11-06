@@ -144,11 +144,14 @@ export async function updateOrderStatus(
   return data as DBOrder;
 }
 
-export async function confirmOrderPayment(reference: string) {
+export type PaymentStatus = DBOrder["payment_status"];
+
+/** Admin records that payment was received (or refunded etc.) outside the site. */
+export async function setOrderPaymentStatus(reference: string, payment_status: PaymentStatus) {
   const db = getServerSupabase();
   const { data, error } = await db
     .from("orders")
-    .update({ payment_status: "paid", status: "confirmed" })
+    .update({ payment_status })
     .eq("reference", reference)
     .select()
     .single();

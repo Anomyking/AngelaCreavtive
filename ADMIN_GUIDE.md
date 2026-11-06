@@ -47,7 +47,7 @@ Every order ever placed, sortable table view showing:
 - Customer name + phone
 - Number of items
 - Total amount
-- Payment status (paid / pending / failed)
+- Payment status (paid / pending / refunded)
 - Order status (pending → confirmed → printing → ready → dispatched → delivered)
 - Date placed
 - "View" link → full detail
@@ -63,6 +63,7 @@ Full info for a single order:
 - Visual progress tracker showing where the order is
 
 **Manage:**
+- Mark payment as **Paid** (or Pending / Refunded) once you've received it — the website takes no online payment, so you arrange payment with the customer and record it here. Revenue on the dashboard only counts orders marked Paid.
 - Update order status with a single click
 - Add tracking code when dispatched
 - Automatic email sent to customer when status changes (printing/ready/dispatched/delivered)
@@ -99,7 +100,6 @@ For each quote you can:
 | Action                        | Customer email | Admin email |
 |-------------------------------|---------------|-------------|
 | Order placed                  | ✅ Confirmation | ✅ Copy with full details |
-| Payment confirmed via webhook | ✅ Receipt     |             |
 | Quote request submitted       | ✅ Acknowledgment | ✅ Action-required notice |
 | Order marked "Printing"       | ✅ Update      |             |
 | Order marked "Ready"          | ✅ Collection info | |
@@ -164,7 +164,7 @@ order by orders desc;
 ## What's NOT in the admin (yet)
 
 Things you'd still do via WhatsApp/manually for now:
-- Refund processing (via IntaSend dashboard)
+- Refund processing (handled by you directly — then mark the order as Refunded)
 - Manually adding orders not placed through the site
 - Editing product prices (currently in `src/data/index.ts` — requires redeploy)
 - Customer support tickets

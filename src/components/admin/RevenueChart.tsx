@@ -1,11 +1,31 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 interface Props {
   data: { date: string; total: number }[];
 }
 
 export default function RevenueChart({ data }: Props) {
-  if (!data || data.length === 0) {
+  const hasData = !!data && data.length > 0;
+
+  // Measure the container so the chart is drawn at its real size. Scaling a
+  // fixed-size SVG down to phone width would shrink the labels and dots too.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(600);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!hasData || !el) return;
+    // ResizeObserver fires once on observe() and again on every resize.
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(Math.max(Math.round(entry.contentRect.width), 240));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasData]);
+
+  if (!hasData) {
     return (
       <div className="h-48 flex items-center justify-center text-xs text-slate-400">
         No revenue data yet
@@ -13,8 +33,7 @@ export default function RevenueChart({ data }: Props) {
     );
   }
 
-  const width   = 600;
-  const height  = 160;
+  const height  = width < 420 ? 140 : 160;
   const padding = { top: 10, right: 10, bottom: 24, left: 10 };
 
   const max = Math.max(...data.map((d) => d.total), 1);
@@ -33,8 +52,8 @@ export default function RevenueChart({ data }: Props) {
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - padding.bottom} L ${points[0].x} ${height - padding.bottom} Z`;
 
   return (
-    <div className="relative w-full">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto" preserveAspectRatio="none">
+    <div ref={wrapRef} className="relative w-full">
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="block max-w-full">
         <defs>
           <linearGradient id="rev-grad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"  stopColor="#302A78" stopOpacity="0.35" />
@@ -67,13 +86,15 @@ export default function RevenueChart({ data }: Props) {
         ))}
 
         {/* X-axis labels (first, middle, last only — avoid crowding) */}
-        {[0, Math.floor(points.length / 2), points.length - 1].map((i) => {
+        {[0, Math.floor(points.length / 2), points.length - 1].map((i, n) => {
           if (!points[i]) return null;
           const d = new Date(points[i].date);
+          // Keep the first/last labels inside the chart instead of centring them on the edge
+          const anchor = n === 0 ? "start" : n === 2 ? "end" : "middle";
           return (
             <text key={i}
               x={points[i].x} y={height - 6}
-              textAnchor="middle" fill="#94A3B8" fontSize="9">
+              textAnchor={anchor} fill="#94A3B8" fontSize="10">
               {d.toLocaleDateString("en-KE", { day: "numeric", month: "short" })}
             </text>
           );
@@ -82,4 +103,3 @@ export default function RevenueChart({ data }: Props) {
     </div>
   );
 }
-

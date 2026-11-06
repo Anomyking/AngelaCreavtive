@@ -15,7 +15,7 @@ export default async function ProductsAdminPage() {
   const hidden      = statuses.filter((s) => s.is_hidden).length;
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl">
       <div className="flex items-end justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Products</h1>
@@ -24,7 +24,7 @@ export default async function ProductsAdminPage() {
       </div>
 
       {/* Summary chips */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-6">
         <Chip label="Total products" value={total} color="slate" />
         <Chip label="In stock"       value={total - outOfStock - lowStock} color="emerald" />
         <Chip label="Low stock"      value={lowStock} color="amber" />
@@ -41,22 +41,18 @@ export default async function ProductsAdminPage() {
               <span className="text-xs text-slate-400">({items.length})</span>
             </h2>
             <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Product</th>
-                    <th className="text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Type</th>
-                    <th className="text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Base price</th>
-                    <th className="text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider px-4 py-3 w-44">Stock status</th>
-                    <th className="text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider px-4 py-3 w-20">Visible</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((p) => (
-                    <ProductStatusRow key={p.id} product={p} currentStatus={statusMap.get(p.id)} />
-                  ))}
-                </tbody>
-              </table>
+              {/* Column headers — md and up only; phones get labelled cards instead.
+                  The grid template must match the one in ProductStatusRow. */}
+              <div className="hidden md:grid md:grid-cols-[minmax(0,2fr)_80px_minmax(0,1fr)_190px_64px] gap-x-4 px-4 py-3 bg-slate-50 border-b border-slate-200">
+                {["Product", "Type", "Base price", "Stock status", "Visible"].map((h) => (
+                  <span key={h} className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">{h}</span>
+                ))}
+              </div>
+              <div>
+                {items.map((p) => (
+                  <ProductStatusRow key={p.id} product={p} currentStatus={statusMap.get(p.id)} />
+                ))}
+              </div>
             </div>
           </div>
         );

@@ -28,7 +28,7 @@ export default function StructuredData({ product }: Props = {}) {
       "email":              "hello@angela.co.ke",
       "priceRange":         "KES 800 – KES 50,000",
       "currenciesAccepted": "KES",
-      "paymentAccepted":    "M-Pesa, Visa, Mastercard",
+      "paymentAccepted":    "M-Pesa, Bank transfer",
       "image":              `${BASE_URL}/og-image.png`,
       "logo":               `${BASE_URL}/icon.svg`,
       "address": {

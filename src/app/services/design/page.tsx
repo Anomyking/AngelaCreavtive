@@ -52,7 +52,7 @@ const services = [
 
 const process = [
   { step: "01", title: "Tell us what you need",  desc: "Brief us via the form, WhatsApp, or in-studio — share inspiration if you have any" },
-  { step: "02", title: "Pay 50% to start",        desc: "M-Pesa or card. Balance due on approval. Refundable if we can't deliver" },
+  { step: "02", title: "Pay 50% to start",        desc: "Arranged with our team (M-Pesa or bank transfer). Balance due on approval. Refundable if we can't deliver" },
   { step: "03", title: "Review the first draft", desc: "We send 1-3 design directions within the timeline. You pick one to refine" },
   { step: "04", title: "Revisions until you love it", desc: "Free revisions within scope. Quick edits in hours, not days" },
   { step: "05", title: "Get your files",          desc: "All formats delivered: print-ready PDFs, social PNGs, source files if package includes them" },

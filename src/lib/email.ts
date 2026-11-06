@@ -24,7 +24,6 @@ export interface OrderEmailData {
   total:          number;
   deliveryMethod: string;
   deliveryAddress?: string;
-  paymentMethod:  string;
 }
 
 export interface QuoteEmailData {
@@ -54,7 +53,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
     const { error } = await getResend().emails.send({
       from:    FROM_EMAIL,
       to:      data.customerEmail,
-      subject: `Order confirmed ✅ — ${data.reference} | Angela`,
+      subject: `Order received ✅ — ${data.reference} | Angela`,
       react:   OrderConfirmationEmail(data),
     });
 

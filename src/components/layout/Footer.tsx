@@ -250,7 +250,7 @@ export default function Footer() {
             </Link>
           </div>
           <div className="flex gap-2">
-            {["M-Pesa","Visa","Mastercard"].map((p) => (
+            {["M-Pesa","Bank transfer"].map((p) => (
               <span key={p} className="bg-brand-50 border border-brand-100 rounded px-2 py-1 text-brand-500">{p}</span>
             ))}
           </div>

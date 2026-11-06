@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrderById } from "@/lib/db";
 import OrderStatusUpdater from "@/components/admin/OrderStatusUpdater";
+import PaymentStatusControl from "@/components/admin/PaymentStatusControl";
 
 const statusSteps = ["pending","confirmed","printing","ready","dispatched","delivered"];
 
@@ -14,6 +16,17 @@ const statusColors: Record<string, string> = {
   cancelled:  "bg-red-100 text-red-600",
 };
 
+// New orders are placed without online payment and stored as "whatsapp"
+// (= payment arranged with the customer). mpesa / card are older online orders.
+function paymentMethodLabel(method: string) {
+  switch (method) {
+    case "whatsapp": return "Arranged with customer";
+    case "mpesa":    return "M-Pesa";
+    case "card":     return "Card";
+    default:         return method;
+  }
+}
+
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   let order;
@@ -26,27 +39,27 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const currentStep = statusSteps.indexOf(order.status);
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <a href="/admin/orders" className="text-sm text-brand-500 hover:text-brand-800">← Orders</a>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
+            <Link href="/admin/orders" className="text-sm text-brand-500 hover:text-brand-800">← Orders</Link>
             <span className="text-brand-200">/</span>
-            <span className="text-sm text-brand-700 font-mono">{order.reference}</span>
+            <span className="text-sm text-brand-700 font-mono break-all">{order.reference}</span>
           </div>
-          <h1 className="text-2xl font-medium text-brand-950">{order.customer_name}</h1>
+          <h1 className="text-xl sm:text-2xl font-medium text-brand-950 break-words">{order.customer_name}</h1>
           <p className="text-sm text-brand-500 mt-1">
             Placed {new Date(order.created_at).toLocaleDateString("en-KE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
-        <span className={`text-sm font-medium px-4 py-2 rounded-full capitalize ${statusColors[order.status] ?? "bg-gray-100 text-gray-600"}`}>
+        <span className={`self-start shrink-0 text-sm font-medium px-4 py-2 rounded-full capitalize ${statusColors[order.status] ?? "bg-gray-100 text-gray-600"}`}>
           {order.status}
         </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-5 min-w-0">
 
           {/* Progress tracker */}
           <div className="bg-white border border-brand-100 rounded-2xl p-5">
@@ -70,6 +83,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </div>
               ))}
             </div>
+            {/* Step names are hidden on phones to save room, so spell out the current one */}
+            <p className="sm:hidden text-xs text-brand-500 mt-3">
+              Current step: <span className="font-medium capitalize text-brand-800">{order.status}</span>
+            </p>
           </div>
 
           {/* Items */}
@@ -79,13 +96,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             </div>
             <div className="divide-y divide-brand-50">
               {(Array.isArray(order.items) ? order.items : []).map((item: { product?: { name?: string }; quantity?: number; unitPrice?: number; finish?: string }, i: number) => (
-                <div key={i} className="flex items-center gap-4 px-5 py-4">
+                <div key={i} className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4">
                   <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center text-xl shrink-0">🖨️</div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-brand-900">{item.product?.name ?? "Product"}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-brand-900 break-words">{item.product?.name ?? "Product"}</p>
                     <p className="text-xs text-brand-400 mt-0.5">{(item.quantity ?? 0).toLocaleString()} pcs · {item.finish ?? "Standard"}</p>
                   </div>
-                  <p className="text-sm font-medium text-brand-900">
+                  <p className="text-sm font-medium text-brand-900 shrink-0">
                     KES {Math.round((item.unitPrice ?? 0) * ((item.quantity ?? 0) / 100)).toLocaleString()}
                   </p>
                 </div>
@@ -103,13 +120,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           <div className="bg-white border border-brand-100 rounded-2xl p-5">
             <h3 className="text-sm font-medium text-brand-950 mb-4">Customer</h3>
             <div className="space-y-2">
-              <p className="text-sm text-brand-800 font-medium">{order.customer_name}</p>
-              <a href={`mailto:${order.customer_email}`} className="text-xs text-brand-600 hover:underline block">📧 {order.customer_email}</a>
-              <a href={`tel:${order.customer_phone}`} className="text-xs text-brand-600 hover:underline block">📱 {order.customer_phone}</a>
+              <p className="text-sm text-brand-800 font-medium break-words">{order.customer_name}</p>
+              <a href={`mailto:${order.customer_email}`} className="text-xs text-brand-600 hover:underline block break-all py-1">📧 {order.customer_email}</a>
+              <a href={`tel:${order.customer_phone}`} className="text-xs text-brand-600 hover:underline block py-1">📱 {order.customer_phone}</a>
             </div>
           </div>
 
@@ -117,18 +134,16 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <h3 className="text-sm font-medium text-brand-950 mb-4">Delivery</h3>
             <div className="space-y-2">
               <p className="text-xs text-brand-600 capitalize">📦 {order.delivery_method.replace("_", " ")}</p>
-              {order.delivery_address && <p className="text-xs text-brand-500 leading-relaxed">📍 {order.delivery_address}</p>}
-              {order.tracking_code && <p className="text-xs text-brand-600 font-mono">🚚 {order.tracking_code}</p>}
+              {order.delivery_address && <p className="text-xs text-brand-500 leading-relaxed break-words">📍 {order.delivery_address}</p>}
+              {order.tracking_code && <p className="text-xs text-brand-600 font-mono break-all">🚚 {order.tracking_code}</p>}
             </div>
           </div>
 
           <div className="bg-white border border-brand-100 rounded-2xl p-5">
             <h3 className="text-sm font-medium text-brand-950 mb-4">Payment</h3>
-            <div className="space-y-2">
-              <p className="text-xs text-brand-600 capitalize">💳 {order.payment_method}</p>
-              <p className={`text-xs font-medium capitalize ${order.payment_status === "paid" ? "text-emerald-600" : "text-yellow-600"}`}>
-                {order.payment_status === "paid" ? "✅ Paid" : "⏳ " + order.payment_status}
-              </p>
+            <div className="space-y-3">
+              <p className="text-xs text-brand-600">💳 {paymentMethodLabel(order.payment_method)}</p>
+              <PaymentStatusControl reference={order.reference} paymentStatus={order.payment_status} />
             </div>
           </div>
 
@@ -136,11 +151,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <h3 className="text-sm font-medium text-brand-950 mb-3">Quick actions</h3>
             <a href={`https://wa.me/${order.customer_phone.replace(/\D/g,"")}?text=Hi ${order.customer_name}, update on your Angela order ${order.reference}:`}
               target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-xs text-brand-600 hover:text-brand-800 py-2 border-b border-brand-50">
+              className="flex items-center gap-2 text-xs text-brand-600 hover:text-brand-800 py-3 border-b border-brand-50">
               💬 WhatsApp customer
             </a>
             <a href={`mailto:${order.customer_email}?subject=Update on your order ${order.reference}`}
-              className="flex items-center gap-2 text-xs text-brand-600 hover:text-brand-800 py-2">
+              className="flex items-center gap-2 text-xs text-brand-600 hover:text-brand-800 py-3">
               📧 Email customer
             </a>
           </div>
@@ -149,4 +164,3 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     </div>
   );
 }
-

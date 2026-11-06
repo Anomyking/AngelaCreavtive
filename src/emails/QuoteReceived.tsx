@@ -95,7 +95,7 @@ export function QuoteReceivedEmail(data: QuoteEmailData) {
               "Bulk discount if applicable",
               "Exact turnaround time",
               "Delivery options and costs",
-              "Payment instructions (M-Pesa or card)",
+              "Payment instructions",
             ].map((item) => (
               <Row key={item} style={{ marginBottom: "6px" }}>
                 <Column style={{ width: "20px" }}>

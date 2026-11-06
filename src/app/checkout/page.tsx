@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/data";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-type PaymentMethod = "mpesa" | "card";
 type DeliveryMethod = "pickup" | "nairobi" | "nationwide";
 
 const DELIVERY_FEES: Record<DeliveryMethod, number> = {
@@ -14,14 +14,20 @@ const DELIVERY_FEES: Record<DeliveryMethod, number> = {
   nationwide: 850,
 };
 
+const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
+  pickup:     "Pick up in Westlands, Nairobi",
+  nairobi:    "Delivery within Nairobi",
+  nationwide: "Nationwide courier delivery",
+};
+
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const router = useRouter();
 
-  const [step,           setStep]           = useState<1 | 2 | 3>(1);
-  const [paymentMethod,  setPaymentMethod]  = useState<PaymentMethod>("mpesa");
+  const [step,           setStep]           = useState<1 | 2>(1);
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("nairobi");
   const [loading,        setLoading]        = useState(false);
+  const [placed,         setPlaced]         = useState(false);
   const [error,          setError]          = useState("");
 
   const [customer, setCustomer] = useState({
@@ -38,8 +44,8 @@ export default function CheckoutPage() {
     window.scrollTo(0, 0);
   };
 
-  // ── Step 2: Payment ─────────────────────────────────────────────────────────
-  const handlePayment = async (e: React.FormEvent) => {
+  // ── Step 2: Review & place order ────────────────────────────────────────────
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -51,47 +57,38 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           customer,
           items,
+          subtotal,
+          deliveryFee,
           total,
           deliveryMethod,
-          paymentMethod,
-          // Phone must be in 2547XXXXXXXX format for M-Pesa STK push
-          mpesaPhone: customer.phone.replace(/^0/, "254").replace(/^\+/, ""),
         }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message ?? "Payment failed");
+      if (!res.ok) throw new Error(data.message ?? "Could not place your order");
 
+      // `placed` stops the "cart is empty" screen flashing while we navigate away
+      setPlaced(true);
       clearCart();
-
-      if (paymentMethod === "mpesa") {
-        // M-Pesa STK push sent — show waiting screen
-        setStep(3);
-        // Poll for payment confirmation (simplified — in production use webhooks)
-        setTimeout(() => router.push(`/checkout/success?ref=${data.reference}`), 3000);
-      } else {
-        // Card — redirect to IntaSend hosted page
-        window.location.href = data.redirectUrl;
-      }
+      router.push(`/checkout/success?ref=${data.reference}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
 
   // ── Empty cart ───────────────────────────────────────────────────────────────
-  if (items.length === 0 && step !== 3) {
+  if (items.length === 0 && !placed) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
           <p className="text-5xl mb-4">🛒</p>
           <h1 className="text-xl font-medium text-brand-950 mb-2">Your cart is empty</h1>
           <p className="text-sm text-brand-500 mb-6">Add some products before checking out.</p>
-          <a href="/#products" className="inline-flex bg-brand-700 text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-brand-600 transition-colors">
+          <Link href="/#products" className="inline-flex bg-brand-700 text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-brand-600 transition-colors">
             Browse products
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -103,15 +100,15 @@ export default function CheckoutPage() {
       {/* Header */}
       <div className="bg-white border-b border-brand-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <a href="/" className="text-base font-semibold text-brand-950">🖨️ Angela</a>
+          <Link href="/" className="text-base font-semibold text-brand-950">🖨️ Angela</Link>
           <div className="flex items-center gap-3">
-            {["Details", "Payment", "Confirm"].map((label, i) => (
+            {["Details", "Review & place order"].map((label, i) => (
               <div key={label} className="flex items-center gap-2">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${step > i + 1 ? "bg-emerald-500 text-white" : step === i + 1 ? "bg-brand-700 text-white" : "bg-brand-100 text-brand-400"}`}>
                   {step > i + 1 ? "✓" : i + 1}
                 </div>
                 <span className={`text-xs hidden sm:block ${step === i + 1 ? "text-brand-800 font-medium" : "text-brand-400"}`}>{label}</span>
-                {i < 2 && <span className="text-brand-200 text-xs">›</span>}
+                {i < 1 && <span className="text-brand-200 text-xs">›</span>}
               </div>
             ))}
           </div>
@@ -154,6 +151,7 @@ export default function CheckoutPage() {
                     <input required value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
                       placeholder="+254 700 000 000"
                       className="w-full text-sm border border-brand-100 focus:border-brand-500 rounded-xl px-4 py-3 outline-none text-brand-800 placeholder:text-brand-300" />
+                    <p className="text-xs text-brand-400 mt-1">We&apos;ll use this to confirm your order and arrange payment.</p>
                   </div>
 
                   {/* Delivery method */}
@@ -161,9 +159,9 @@ export default function CheckoutPage() {
                     <label className="text-xs font-medium text-brand-700 block mb-3">Delivery method *</label>
                     <div className="space-y-2">
                       {([
-                        { value: "pickup",     label: "Pick up in Westlands, Nairobi", fee: 0,   icon: "🏪" },
-                        { value: "nairobi",    label: "Delivery within Nairobi",       fee: subtotal >= 7000 ? 0 : 450,  icon: "🚚" },
-                        { value: "nationwide", label: "Nationwide courier delivery",   fee: subtotal >= 7000 ? 0 : 850,  icon: "📦" },
+                        { value: "pickup",     label: DELIVERY_LABELS.pickup,     fee: 0,   icon: "🏪" },
+                        { value: "nairobi",    label: DELIVERY_LABELS.nairobi,    fee: subtotal >= 7000 ? 0 : 450,  icon: "🚚" },
+                        { value: "nationwide", label: DELIVERY_LABELS.nationwide, fee: subtotal >= 7000 ? 0 : 850,  icon: "📦" },
                       ] as const).map((opt) => (
                         <label key={opt.value} className={`flex items-center justify-between gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${deliveryMethod === opt.value ? "border-brand-500 bg-brand-50" : "border-brand-100 hover:border-brand-300"}`}>
                           <div className="flex items-center gap-3">
@@ -195,69 +193,57 @@ export default function CheckoutPage() {
                   )}
 
                   <button type="submit" className="w-full py-4 bg-brand-700 hover:bg-brand-600 text-white text-sm font-medium rounded-full transition-colors">
-                    Continue to payment →
+                    Continue to review →
                   </button>
                 </form>
               </div>
             )}
 
-            {/* ── STEP 2: Payment ── */}
+            {/* ── STEP 2: Review & place order ── */}
             {step === 2 && (
               <div className="bg-white rounded-2xl border border-brand-100 p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <button onClick={() => setStep(1)} className="text-xs text-brand-500 hover:text-brand-800">← Back</button>
-                  <h2 className="text-lg font-medium text-brand-950">Payment</h2>
+                  <button onClick={() => setStep(1)} disabled={loading} className="text-xs text-brand-500 hover:text-brand-800 disabled:opacity-50">← Back</button>
+                  <h2 className="text-lg font-medium text-brand-950">Review &amp; place order</h2>
                 </div>
 
-                {/* Payment method selector */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  {([
-                    { value: "mpesa", label: "M-Pesa",   icon: "📱", sub: "STK push to your phone" },
-                    { value: "card",  label: "Card",      icon: "💳", sub: "Visa or Mastercard"     },
-                  ] as const).map((opt) => (
-                    <button key={opt.value} onClick={() => setPaymentMethod(opt.value)}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${paymentMethod === opt.value ? "border-brand-700 bg-brand-50" : "border-brand-100 hover:border-brand-300"}`}>
-                      <span className="text-2xl">{opt.icon}</span>
-                      <span className={`text-sm font-medium ${paymentMethod === opt.value ? "text-brand-800" : "text-brand-600"}`}>{opt.label}</span>
-                      <span className="text-xs text-brand-400">{opt.sub}</span>
-                    </button>
-                  ))}
+                {/* Details summary */}
+                <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 mb-4 space-y-2">
+                  <div className="flex justify-between gap-4 text-xs">
+                    <span className="text-brand-400 shrink-0">Name</span>
+                    <span className="text-brand-800 font-medium text-right break-words min-w-0">{customer.name}</span>
+                  </div>
+                  <div className="flex justify-between gap-4 text-xs">
+                    <span className="text-brand-400 shrink-0">Email</span>
+                    <span className="text-brand-800 font-medium text-right break-all min-w-0">{customer.email}</span>
+                  </div>
+                  <div className="flex justify-between gap-4 text-xs">
+                    <span className="text-brand-400 shrink-0">Phone</span>
+                    <span className="text-brand-800 font-medium text-right">{customer.phone}</span>
+                  </div>
+                  <div className="flex justify-between gap-4 text-xs">
+                    <span className="text-brand-400 shrink-0">Delivery</span>
+                    <span className="text-brand-800 font-medium text-right">{DELIVERY_LABELS[deliveryMethod]}</span>
+                  </div>
+                  {deliveryMethod !== "pickup" && customer.address && (
+                    <div className="flex justify-between gap-4 text-xs">
+                      <span className="text-brand-400 shrink-0">Address</span>
+                      <span className="text-brand-800 font-medium text-right break-words min-w-0">{customer.address}</span>
+                    </div>
+                  )}
                 </div>
 
-                <form onSubmit={handlePayment} className="space-y-4">
-                  {paymentMethod === "mpesa" && (
-                    <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5">
-                      <p className="text-sm font-medium text-brand-900 mb-2">📱 M-Pesa STK Push</p>
-                      <p className="text-xs text-brand-600 leading-relaxed mb-4">
-                        After clicking pay, you&apos;ll receive an M-Pesa prompt on your phone at{" "}
-                        <strong>{customer.phone}</strong>. Enter your M-Pesa PIN to complete the payment.
-                      </p>
-                      <div>
-                        <label className="text-xs font-medium text-brand-700 block mb-1.5">
-                          M-Pesa phone number *
-                        </label>
-                        <input
-                          required
-                          type="tel"
-                          value={customer.phone}
-                          onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
-                          placeholder="0712 345 678"
-                          className="w-full text-sm border border-brand-100 focus:border-brand-500 rounded-xl px-4 py-3 outline-none text-brand-800 bg-white"
-                        />
-                        <p className="text-xs text-brand-400 mt-1">Must be a registered Safaricom M-Pesa number</p>
-                      </div>
-                    </div>
-                  )}
+                {/* How payment works */}
+                <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 mb-6">
+                  <p className="text-sm font-medium text-brand-900 mb-2">💬 How payment works</p>
+                  <p className="text-xs text-brand-600 leading-relaxed">
+                    There&apos;s no online payment at checkout. Once you place your order, our team will
+                    contact you by WhatsApp, phone or email to confirm it and arrange payment of{" "}
+                    <strong>{formatPrice(total)}</strong>. We begin production once payment is confirmed.
+                  </p>
+                </div>
 
-                  {paymentMethod === "card" && (
-                    <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5">
-                      <p className="text-sm font-medium text-brand-900 mb-2">💳 Card payment</p>
-                      <p className="text-xs text-brand-600 leading-relaxed">
-                        You&apos;ll be redirected to our secure payment page powered by IntaSend. Visa and Mastercard accepted.
-                      </p>
-                    </div>
-                  )}
-
+                <form onSubmit={handlePlaceOrder} className="space-y-4">
                   {error && (
                     <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                       <p className="text-xs text-red-600">❌ {error}</p>
@@ -272,37 +258,17 @@ export default function CheckoutPage() {
                     {loading ? (
                       <>
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        {paymentMethod === "mpesa" ? "Sending M-Pesa prompt…" : "Redirecting…"}
+                        Placing your order…
                       </>
                     ) : (
-                      `Pay ${formatPrice(total)} via ${paymentMethod === "mpesa" ? "M-Pesa" : "Card"} →`
+                      `Place order · ${formatPrice(total)}`
                     )}
                   </button>
 
-                  <div className="flex items-center justify-center gap-4 pt-2">
-                    <span className="text-xs text-brand-400">🔒 Secured by IntaSend</span>
-                    <span className="text-xs text-brand-400">·</span>
-                    <span className="text-xs text-brand-400">SSL encrypted</span>
-                  </div>
+                  <p className="text-xs text-brand-400 text-center">
+                    You&apos;ll get an email confirmation as soon as your order is placed.
+                  </p>
                 </form>
-              </div>
-            )}
-
-            {/* ── STEP 3: M-Pesa waiting ── */}
-            {step === 3 && (
-              <div className="bg-white rounded-2xl border border-brand-100 p-8 text-center">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">📱</span>
-                </div>
-                <h2 className="text-lg font-medium text-brand-950 mb-2">Check your phone</h2>
-                <p className="text-sm text-brand-600 leading-relaxed mb-4">
-                  We&apos;ve sent an M-Pesa STK push to <strong>{customer.phone}</strong>.
-                  Enter your PIN to confirm payment of <strong>{formatPrice(total)}</strong>.
-                </p>
-                <div className="flex items-center justify-center gap-2 text-xs text-brand-400">
-                  <span className="w-3 h-3 border-2 border-brand-300 border-t-brand-700 rounded-full animate-spin" />
-                  Waiting for payment confirmation…
-                </div>
               </div>
             )}
           </div>
@@ -356,4 +322,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

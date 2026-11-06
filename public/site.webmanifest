@@ -1,7 +1,7 @@
 {
   "name": "Angela — Premium Printing in Nairobi",
   "short_name": "Angela",
-  "description": "Same-day printing in Nairobi. Pay with M-Pesa.",
+  "description": "Same-day printing in Nairobi.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F7F3EA",

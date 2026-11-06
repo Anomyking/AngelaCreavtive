@@ -83,7 +83,7 @@ const stats = [
 const trust = [
   { icon: "🚚", title: "Free delivery",     sub: "Orders over KES 7,000"         },
   { icon: "⚡", title: "Same-day printing", sub: "Order before 12 PM"             },
-  { icon: "📱", title: "Pay via M-Pesa",    sub: "Instant & secure"               },
+  { icon: "💬", title: "Easy ordering",     sub: "We confirm payment with you"    },
   { icon: "🛡️", title: "Reprint guarantee", sub: "If it's not right, we redo it"  },
 ];
 

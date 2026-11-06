@@ -10,9 +10,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/admin/login");
   }
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    // Below lg the sidebar renders as a top bar, so stack; from lg it sits beside the content.
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
       <AdminSidebar />
-      <main className="flex-1 overflow-x-hidden min-w-0">{children}</main>
+      {/* a div, not <main>: the root layout already wraps pages in <main> */}
+      <div className="flex-1 overflow-x-hidden min-w-0">{children}</div>
     </div>
   );
 }

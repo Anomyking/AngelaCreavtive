@@ -27,7 +27,7 @@ const standardItems = [
 
 const sameDayChecklist = [
   { check: "Order placed before 12 PM", important: true },
-  { check: "Payment confirmed (M-Pesa or card cleared)", important: true },
+  { check: "Payment confirmed with our team", important: true },
   { check: "Print-ready artwork submitted with order", important: true },
   { check: "Standard product (not custom size or special finish)", important: false },
   { check: "Collection from Westlands studio (vs delivery)", important: false },
